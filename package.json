@@ -2,15 +2,14 @@
   "name": "botbuilder-adapter-github",
   "version": "0.1.0",
   "description": "Connect Botkit or BotBuilder to Github",
-  "main": "./lib/index.js",
-  "typings": "./lib/index.d.ts",
+  "main": "./dist/index.js",
+  "typings": "./dist/index.d.ts",
   "files": [
-    "/lib",
+    "/dist",
     "/src"
   ],
   "scripts": {
     "build": "tsc",
-    "prepublish": "tsc",
     "test": "tsc ; nyc mocha tests/*.tests.js",
     "eslint": "./node_modules/.bin/eslint --fix src/*"
   },

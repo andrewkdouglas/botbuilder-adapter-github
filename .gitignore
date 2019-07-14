@@ -61,4 +61,4 @@ typings/
 .next
 
 # compiled/transpiled code
-#lib/
+dist/
