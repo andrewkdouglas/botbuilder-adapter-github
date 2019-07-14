@@ -10,6 +10,7 @@
   ],
   "scripts": {
     "build": "tsc",
+    "prepublishOnly": "tsc",
     "test": "tsc ; nyc mocha tests/*.tests.js",
     "eslint": "./node_modules/.bin/eslint --fix src/*"
   },
@@ -21,8 +22,7 @@
     "botbuilder",
     "botframework",
     "bots",
-    "chatbots",
-    "azure"
+    "chatbots"
   ],
   "homepage": "https://github.com/andrewcamerondouglas/botbuilder-adapter-github#readme",
   "bugs": {
