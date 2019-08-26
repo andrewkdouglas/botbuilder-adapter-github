@@ -38,9 +38,10 @@ export class GithubMessageTypeMiddleware extends MiddlewareSet {
             let adapter = context.adapter as GithubAdapter;
 
             const bot = await adapter.getBotUserFromAPI();
-            var mentionSyntax = '@' + bot.login;
-            var mention = new RegExp(mentionSyntax, 'i');
-            var direct_mention = new RegExp('^' + mentionSyntax, 'i');
+            const mentionSyntax = '@' + bot.login;
+            const mention = new RegExp(mentionSyntax, 'i');
+            const direct_mention = new RegExp('^' + mentionSyntax, 'i');
+            const slash_command = new RegExp('^\/\w+', 'i');
 
             if (bot.login && context.activity.text && context.activity.text.match(direct_mention)) {
                 debug('Detected as \'direct_mention\' by middleware')
@@ -53,6 +54,14 @@ export class GithubMessageTypeMiddleware extends MiddlewareSet {
             } else if (bot.login && context.activity.text && context.activity.text.match(mention)) {
                 debug('Detected as \'mention\' by middleware')
                 context.activity.channelData.botkitEventType = 'mention';
+            } else if (context.activity.text && context.activity.text.match(slash_command)) {
+                debug('Detected as \'slash_command\' by middleware')
+
+                context.activity.channelData.botkitEventType = 'slash_command';
+
+                context.activity.type = ActivityTypes.Event;
+
+                context.activity.text = context.activity.text.replace(/^\//, '');
             } else {
                 // this is an "ambient" message
             }
