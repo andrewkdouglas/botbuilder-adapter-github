@@ -62,3 +62,4 @@ typings/
 
 # compiled/transpiled code
 dist/
+.DS_Store
