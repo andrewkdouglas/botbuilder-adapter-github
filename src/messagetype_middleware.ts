@@ -41,7 +41,7 @@ export class GithubMessageTypeMiddleware extends MiddlewareSet {
             const mentionSyntax = '@' + bot.login;
             const mention = new RegExp(mentionSyntax, 'i');
             const direct_mention = new RegExp('^' + mentionSyntax, 'i');
-            const slash_command = new RegExp('^\/\w+', 'i');
+            const slash_command = new RegExp('^\/[a-z0-9]+', 'i');
 
             if (bot.login && context.activity.text && context.activity.text.match(direct_mention)) {
                 debug('Detected as \'direct_mention\' by middleware')
