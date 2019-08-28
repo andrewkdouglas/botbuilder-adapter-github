@@ -90,6 +90,9 @@ This adapter will emit the following events:
 | Event | Description
 |--- |---
 | message | a message from a user received in an issue or pull request
+| direct_message | a message from a user to the bot user received in an issue or pull request (with GithubMessageTypeMiddleware)
+| slash_command | a message starting with a slash command received in an issue or pull request (with GithubMessageTypeMiddleware)
+| *github_event*_*github_action* | all other events processed from github (with GithubEventTypeMiddleware)
 
 This package includes a set of optional middleware that will modify the type of incoming events.
 
@@ -98,9 +101,11 @@ Most Botkit developers who plan to use features above and beyond the basic send/
 Import the adapter and the middlewares:
 
 ```javascript
-// load GithubAdapter AND GithubMessageTypeMiddleware
-const { GithubAdapter, GithubMessageTypeMiddleware } = require('botbuilder-adapter-github');
+// load GithubAdapter, GithubMessageTypeMiddleware and GithubEventTypeMiddleware
+const { GithubAdapter, GithubMessageTypeMiddleware, GithubEventTypeMiddleware } = require('botbuilder-adapter-github');
 ```
+
+**GithubMessageTypeMiddleware**
 
 Create your adapter (as above), then bind the middlewares to the adapter:
 
@@ -108,7 +113,7 @@ Create your adapter (as above), then bind the middlewares to the adapter:
 adapter.use(new GithubMessageTypeMiddleware());
 ```
 
-Now, Botkit will emit activities of type 'message' and 'direct_mention':
+Now, Botkit will emit activities of type 'message', 'direct_mention' and 'slash_command':
 
 ```
 // @botuser Release
@@ -117,12 +122,32 @@ controller.hears('Release', ['direct_mention'], async function(bot, message) {
 });
 ```
 
-### Github event types
-Currently this adapter supports the following Github event types  (as defined in the header `X-GitHub-Event`):
+**GithubEventTypeMiddleware**
 
-| Event | Description
-|--- |---
-| issue_comment | a comment submitted to an issue or pull request. Mapped to a message in Botkit
+Create your adapter (as above), then bind the middlewares to the adapter:
+
+```javascript
+adapter.use(new GithubEventTypeMiddleware());
+```
+
+Now, Botkit will emit activities using the format '*github_event*_*github_action*:
+
+```
+// @botuser Release
+controller.on('pull_request_created', async function(bot, message) {
+    console.log('PR created!!');
+});
+```
+
+The event types are generated using the value from the incoming 'X-GitHub-Event' header, and concatenating the payload action (with an extra underscore).
+
+### Github event types
+Currently this adapter supports all Github event types  (as defined in the header `X-GitHub-Event`). A full list of webhook events can be found here: https://developer.github.com/v3/activity/events/types/
+
+
+**issue_comment events**
+issue_comment are a comment submitted to an issue or pull request. These are a special case, and are mapped to messages in Botkit.
+
 
 ## Calling Github APIs
 
