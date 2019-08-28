@@ -403,16 +403,24 @@ export class GithubAdapter extends BotAdapter {
 
         const eventType = req.header('X-Github-Event');
 
+        let activity = {};
+
+        let context = null;
+
+
+        const user = await this.getBotUserFromAPI();
+
         switch (eventType) {
             case 'issue_comment':
-                const user = await this.getBotUserFromAPI()
+
+                debug('Received a message: ' + eventType);             
 
                 if(user.user_id == event.comment.user.id){
                     debug('Ignoring message from bot user (' + event.comment.user.login + ')');
                     return;
                 }
 
-                const activity = {
+                activity = {
                     type: ActivityTypes.Message,
                     id: event.comment.id,
                     timestamp: new Date(event.comment.updated_at),
@@ -438,23 +446,53 @@ export class GithubAdapter extends BotAdapter {
 
                 // create a conversation reference
                 // @ts-ignore
-                const context = new TurnContext(this, activity as Activity);
+                context = new TurnContext(this, activity as Activity);
 
                 context.turnState.set('httpStatus', 200);
 
                 await this.runMiddleware(context, logic);
 
-                // send http response back
-                res.status(context.turnState.get('httpStatus'));
-                if (context.turnState.get('httpBody')) {
-                    res.send(context.turnState.get('httpBody'));
-                } else {
-                    res.end();
-                }
                 break;
             default:
-                debug('Ignoring "' + eventType + '", event type not currently supported')
 
+                debug('Received an event: ' + eventType);
+
+                activity = {
+                    type: ActivityTypes.Event,
+                    id: event.repository.full_name,
+                    timestamp: new Date(),
+                    channelData: event,
+                    channelId: 'github',
+                    from: {
+                        id: event.sender.login,
+                        role: event.sender.type == 'User' ? RoleTypes.User : RoleTypes.Bot
+                    },   
+                    conversation: {
+                        id: req.header('X-Github-Delivery')
+                    },
+                    recipient: { id: null },
+                    text: null,
+                    label: eventType                    
+                };
+
+                // create a conversation reference
+                // @ts-ignore
+                context = new TurnContext(this, activity as Activity);
+
+                context.turnState.set('httpStatus', 200);
+
+                await this.runMiddleware(context, logic);
+
+                break;
+
+        }
+
+        // send http response back
+        res.status(context ? context.turnState.get('httpStatus') : 200);
+        if (context && context.turnState.get('httpBody')) {
+            res.send(context.turnState.get('httpBody'));
+        } else {
+            res.end();
         }
     }
 }
