@@ -33,7 +33,7 @@ export class GithubEventTypeMiddleware extends MiddlewareSet {
      */
     public async onTurn(context: TurnContext, next: () => Promise<any>): Promise<void> {
 
-        if (context.activity.type === ActivityTypes.Event && context.activity.label && context.activity.channelData) {
+        if (context.activity.type === ActivityTypes.Event && context.activity.label && context.activity.channelData && context.activity.channelData.botkitEventType != 'slash_command') {
 
             let eventType = context.activity.label;
             
