@@ -220,6 +220,8 @@ export class GithubAdapter extends BotAdapter {
 
                     switch (message.target.type) {
                         case 'issue_comment':
+                        case 'pull_request':
+                        case 'issues':
                             result = await octokit.issues.createComment({
                                 owner: message.target.owner,
                                 repo: message.target.repo,
@@ -228,7 +230,7 @@ export class GithubAdapter extends BotAdapter {
                             })
                             break;
                         default:
-                            result = 'Unsupported target type (must be one of [issue_comment])'
+                            result = 'Unsupported target type [' + message.target.type + '] (must be one of [issue_comment,issues,pull_request])'
                     }
 
                     if (result.status < 300) {

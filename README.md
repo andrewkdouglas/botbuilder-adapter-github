@@ -74,12 +74,6 @@ server.post('/api/github', (req, res) => {
 
 In order for Botkit to receive events from Github an outgoing webhook needs to be configured (at either the repo or organisational level). Deploy a bot, and then fetch the public URL for your bot and use this to set up a webhook in Github ([Managing Github webhooks](https://developer.github.com/webhooks/)).
 
-Currently the following webhook events are supported:
-
-| Event | Description
-| --- | ---
-| Issue comments | Issue comment created, edited, or deleted.
-
 #### Securing your webhook endpoint
 Is is strongly suggested that developers secure the Botkit endpoint using a `webhookSecret`. A unique key needs to be included as an option on initialization with the same key provided to Github when setting up any webhook ([Securing Github webooks](https://developer.github.com/webhooks/securing/)).
 
@@ -122,6 +116,17 @@ controller.hears('Release', ['direct_mention'], async function(bot, message) {
 });
 ```
 
+```
+controller.on('slash_command', async(bot, message) => { 
+    // the /<command> part
+    let command = message.command;
+    // the /command <parameters> part
+    let parameter = message.text;
+
+    await bot.reply(message,'I received a slash_command event: ' + command + '(' + parameter + ')');
+});
+```
+
 **GithubEventTypeMiddleware**
 
 Create your adapter (as above), then bind the middlewares to the adapter:
@@ -130,7 +135,7 @@ Create your adapter (as above), then bind the middlewares to the adapter:
 adapter.use(new GithubEventTypeMiddleware());
 ```
 
-Now, Botkit will emit activities using the format '*github_event*_*github_action*:
+Now, Botkit will emit activities using the format *github_event*_*github_action*:
 
 ```
 // @botuser Release
@@ -146,7 +151,29 @@ Currently this adapter supports all Github event types  (as defined in the heade
 
 
 **issue_comment events**
-issue_comment are a comment submitted to an issue or pull request. These are a special case, and are mapped to messages in Botkit.
+`issue_comment` are a comment submitted to an issue or pull request. These are a special case, and are mapped to messages in Botkit.
+
+**issues events**
+Events of type `issues` take place in the context of an issue in Github and so can be replied to (with the exception of `issues_closed`). For example:
+
+```
+controller.on('issues_opened', async(bot, message) => {
+
+    await bot.reply(message,'Issue opened!!');
+       
+});
+```
+
+**pull_request events**
+Events of type `pull_request` take place in the context of a PR in Github and so can be replied to. For example:
+
+```
+controller.on('pull_request_reopened', async(bot, message) => {
+
+    await bot.reply(message,'PR reopened!!');
+       
+});
+```
 
 
 ## Calling Github APIs

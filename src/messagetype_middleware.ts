@@ -61,7 +61,15 @@ export class GithubMessageTypeMiddleware extends MiddlewareSet {
 
                 context.activity.type = ActivityTypes.Event;
 
-                context.activity.text = context.activity.text.replace(/^\//, '');
+                let message = context.activity.text.replace(/^\//, '');
+
+                context.activity.text = message;
+
+                let parts = message.split(/(?<=^\S+)\s/);
+                context.activity.channelData.command = parts[0];
+                if(parts.length > 1){
+                    context.activity.text = parts[1]
+                }
             } else {
                 // this is an "ambient" message
             }
