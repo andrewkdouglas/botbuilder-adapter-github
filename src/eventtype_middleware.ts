@@ -31,7 +31,7 @@ export class GithubEventTypeMiddleware extends MiddlewareSet {
      * @param context
      * @param next
      */
-    public async onTurn(context: TurnContext, next: () => Promise<any>): Promise<void> {
+    public async onTurn(context: any, next: () => Promise<any>): Promise<void> {
 
         if (context.activity.type === ActivityTypes.Event && context.activity.label && context.activity.channelData && context.activity.channelData.botkitEventType != 'slash_command') {
 
@@ -42,6 +42,22 @@ export class GithubEventTypeMiddleware extends MiddlewareSet {
             }
             else{
                 context.activity.channelData.botkitEventType = eventType;
+            }
+
+            // Add conversation details where possible
+            if(eventType == 'pull_request'){
+                // Add details to allow us to reply back into the PR
+                context.activity.conversation.isGroup = true;
+                context.activity.conversation.conversationType = eventType;
+                context.activity.conversation.id = context.activity.channelData.number;
+                context.activity.conversation.repo = context.activity.channelData.repository.full_name;
+            }
+            else if(eventType == 'issues'){
+                // Add details to allow us to reply back into the Issue
+                context.activity.conversation.isGroup = true;
+                context.activity.conversation.conversationType = eventType;
+                context.activity.conversation.id = context.activity.channelData.issue.number;
+                context.activity.conversation.repo = context.activity.channelData.repository.full_name;
             }
 
             debug('Event type: ' + context.activity.channelData.botkitEventType);
