@@ -1,6 +1,6 @@
 {
   "name": "botbuilder-adapter-github",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Connect Botkit or BotBuilder to Github",
   "main": "./dist/index.js",
   "typings": "./dist/index.d.ts",
